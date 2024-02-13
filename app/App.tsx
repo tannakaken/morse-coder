@@ -27,6 +27,7 @@ import {
   stringToMorse,
 } from './helpers/morse.helper';
 import {THROWED_CANCEL, sleep} from './helpers/time.helper';
+import {Camera, useCameraDevice} from 'react-native-vision-camera';
 
 const darkColor = '#000000';
 const lightColor = '#f3f3f3';
@@ -106,6 +107,11 @@ const App = (): React.JSX.Element => {
   const cancel = useCallback(() => {
     lighting.is = false;
   }, [lighting]);
+  const [cameraMode, setCameraMode] = useState(false);
+  const device = useCameraDevice('back');
+  const closeCamera = useCallback(() => {
+    setCameraMode(false);
+  }, []);
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -146,6 +152,20 @@ const App = (): React.JSX.Element => {
             </Pressable>
           </View>
         </View>
+      </Modal>
+      <Modal visible={cameraMode} presentationStyle={'fullScreen'}>
+        {device === undefined ? (
+          <View>
+            <Text>カメラがありません。</Text>
+          </View>
+        ) : (
+          <View>
+            <Camera device={device} isActive style={styles.camera} />
+            <Pressable onPress={closeCamera} style={styles.cancelButton}>
+              <Text style={styles.cancelText}>キャンセル</Text>
+            </Pressable>
+          </View>
+        )}
       </Modal>
     </SafeAreaView>
   );
@@ -219,6 +239,10 @@ const styles = StyleSheet.create({
   },
   indicator: {
     margin: 5,
+  },
+  camera: {
+    width: '100%',
+    height: '100%',
   },
 });
 
