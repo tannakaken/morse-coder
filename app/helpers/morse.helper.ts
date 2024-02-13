@@ -1,11 +1,13 @@
-const DAH = '−' as const;
+import {normalize} from './string.helper';
+
+export const DAH = '−' as const;
 type Dah = typeof DAH;
-const DIT = '·' as const;
+export const DIT = '·' as const;
 type Dit = typeof DIT;
 type MorseAtom = Dah | Dit;
 
 type MorseCharacter = MorseAtom[];
-// type MorseSequence = MorseCharacter[];
+type MorseSequence = MorseCharacter[];
 
 type MorseDictionary = {[char: string]: MorseCharacter};
 
@@ -74,9 +76,19 @@ const isMorseEncodable = (char: string): char is MorseEncodable =>
   char in MORSE_DICTIONARY;
 
 /**
- * 文字と文字の間は3
+ * モールス信号の単位。これは短点の長さでもある。
  */
-export const BETWEEN_WORD = 3 as const;
+export const MORSE_UNIT_MILLISECONDS = 200 as const;
+
+/**
+ * モールス信号の長音は3単位。
+ */
+export const MORSE_LONG_MILLISECONDS = 600 as const;
+
+/**
+ * 文字と文字の間は3単位。
+ */
+export const BETWEEN_DURATION_MILLISECONDS = 600 as const;
 
 export const charToMorse = (char: string): MorseCharacter | null => {
   if (isMorseEncodable(char)) {
@@ -85,3 +97,18 @@ export const charToMorse = (char: string): MorseCharacter | null => {
     return null;
   }
 };
+
+export const charsToMorse = (chars: string[]): MorseSequence | null => {
+  let result: MorseSequence = [];
+  for (const char of chars) {
+    const morseChar = charToMorse(char);
+    if (morseChar === null) {
+      return null;
+    }
+    result.push(morseChar);
+  }
+  return result;
+};
+
+export const stringToMorse = (str: string): MorseSequence | null =>
+  charsToMorse(normalize(str).split(''));
